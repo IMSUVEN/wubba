@@ -90,7 +90,7 @@ model.export_onnx("model.onnx")     # 跨平台部署
 | 类别 | 特性 |
 |------|------|
 | ⚡ **性能** | Flash Attention (SDPA)、`torch.compile()`、INT8 量化、ONNX 导出 |
-| 🧠 **架构** | 层次化 RoPE、分组查询注意力、相对位置偏置、RMSNorm + SwiGLU |
+| 🧠 **架构** | 层次化 RoPE、多头注意力 (SDPA)、RMSNorm + SwiGLU |
 | 🎯 **嵌入** | Matryoshka（32/64/128/256 维）、布局不变表示 |
 | 📉 **损失函数** | VICReg、InfoNCE、谱对比损失、困难负样本挖掘、对齐-均匀性 |
 | 🎓 **训练** | 课程学习、自步学习、EMA、表示坍塌检测 |
@@ -121,7 +121,7 @@ Config(
     matryoshka_dims=[32, 64, 128, 256],
     
     # 🎯 训练
-    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid
+    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid | enhanced_hybrid
     use_ema=True,
     enable_multitask=True,
     

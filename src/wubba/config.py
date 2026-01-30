@@ -136,12 +136,10 @@ class Config:
     embedding_log_interval: int = 100
     collapse_detection: bool = True
     collapse_rank_threshold: float = 0.3
-    collapse_std_threshold: float = 0.1
 
     # Paths
     data_dir: Path = field(default_factory=lambda: Path("data"))
     model_dir: Path = field(default_factory=lambda: Path("models"))
-    log_dir: Path = field(default_factory=lambda: Path("logs"))
 
     # System
     device: str = field(default_factory=lambda: "cuda" if torch.cuda.is_available() else "cpu")
@@ -158,7 +156,6 @@ class Config:
 
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.model_dir.mkdir(parents=True, exist_ok=True)
-        self.log_dir.mkdir(parents=True, exist_ok=True)
 
         if self.use_extended_features:
             self.feature_dim = 15

@@ -90,7 +90,7 @@ model.export_onnx("model.onnx")     # Cross-platform deployment
 | Category | Features |
 |----------|----------|
 | ⚡ **Performance** | Flash Attention (SDPA), `torch.compile()`, INT8 quantization, ONNX export |
-| 🧠 **Architecture** | Hierarchical RoPE, Grouped Query Attention, Relative Position Bias, RMSNorm + SwiGLU |
+| 🧠 **Architecture** | Hierarchical RoPE, Multi-Head Attention (SDPA), RMSNorm + SwiGLU |
 | 🎯 **Embeddings** | Matryoshka (32/64/128/256 dims), layout-invariant representations |
 | 📉 **Loss Functions** | VICReg, InfoNCE, Spectral Contrastive, Hard Negative Mining, Alignment-Uniformity |
 | 🎓 **Training** | Curriculum Learning, Self-Paced Learning, EMA, Collapse Detection |
@@ -121,7 +121,7 @@ Config(
     matryoshka_dims=[32, 64, 128, 256],
     
     # 🎯 Training
-    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid
+    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid | enhanced_hybrid
     use_ema=True,
     enable_multitask=True,
     
