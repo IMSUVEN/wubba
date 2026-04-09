@@ -22,6 +22,7 @@ What already exists:
 - A growing `pytest` suite covering config, data processing, inference,
   utilities, metrics, lightweight training entrypoint behavior, and example
   surface contracts
+- External maintenance feedback loops via GitHub Actions CI and Dependabot
 
 What is still taking shape:
 
@@ -38,7 +39,7 @@ What is still taking shape:
 | `README.md` | Product framing, installation, examples, public-facing overview |
 | `docs/ARCHITECTURE.md` | Architecture mirror: what exists now and why |
 | `docs/decisions/` | Significant technical and project decisions |
-| `.github/workflows/` | Remote CI and repository feedback loop |
+| `.github/` | External feedback loop configuration: CI and dependency updates |
 | `src/wubba/` | Library source code |
 | `examples/` | Usage and integration examples |
 | `pyproject.toml` | Packaging, dependencies, and quality tool configuration |
