@@ -103,6 +103,9 @@ def export_to_onnx(
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             return self.base_model.model(x, return_projection=False)
 
+    export_model = _EmbeddingExportWrapper(model)
+    export_model.eval()
+
     if sample_input is None:
         batch_size = 2
         seq_len = 256
@@ -117,7 +120,7 @@ def export_to_onnx(
         }
 
     torch.onnx.export(
-        _EmbeddingExportWrapper(model),
+        export_model,
         (sample_input,),
         str(output_path),
         opset_version=opset_version,
@@ -125,6 +128,7 @@ def export_to_onnx(
         output_names=["output"],
         dynamic_axes=dynamic_axes,
         do_constant_folding=True,
+        dynamo=False,
     )
 
     return output_path

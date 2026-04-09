@@ -46,7 +46,7 @@ similarity = model.compute_similarity(html1, html2)
 ```bash
 uv sync                # 或: pip install .
 uv sync --group dev    # 包含开发工具
-uv sync --extra onnx   # 包含 ONNX 导出支持
+uv sync --extra onnx   # 包含 ONNX 导出与校验依赖
 uv sync --extra examples  # 包含示例依赖
 ```
 
@@ -89,7 +89,8 @@ model.quantize()                    # INT8 量化加速 CPU 推理
 model.export_onnx("model.onnx")     # 跨平台部署
 ```
 
-`quantize()` 使用基础安装即可。`export_onnx()` 和 ONNX 校验需要安装 `onnx` 可选依赖组。
+`quantize()` 使用基础安装即可。`export_onnx()` 和 ONNX 校验需要安装 `onnx`
+可选依赖组；其中会安装 `onnx`、`onnxscript` 和 `onnxruntime`。
 
 ## ✨ 特性
 

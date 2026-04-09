@@ -49,7 +49,7 @@ similarity = model.compute_similarity(html1, html2)
 ```bash
 uv sync                # or: pip install .
 uv sync --group dev    # with dev tools
-uv sync --extra onnx   # with ONNX export
+uv sync --extra onnx   # with ONNX export and validation deps
 uv sync --extra examples  # with example-only dependencies
 ```
 
@@ -93,7 +93,8 @@ model.export_onnx("model.onnx")     # Cross-platform deployment
 ```
 
 `quantize()` works with the base install. `export_onnx()` and ONNX validation
-require the `onnx` optional dependency group.
+require the `onnx` optional dependency group, which installs `onnx`,
+`onnxscript`, and `onnxruntime`.
 
 ## ✨ Features
 
