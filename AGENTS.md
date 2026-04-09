@@ -58,6 +58,8 @@ What is still taking shape:
   review according to how much of the public surface they can affect.
 - Treat core runtime upgrades, especially `torch`, as environment decisions as
   well as version bumps; importability and resolved wheel families matter.
+- Keep the default `uv` path CPU-first for `torch` unless the repository makes
+  an explicit supported-runtime decision.
 - Prefer repository memory over chat memory. Stable decisions belong in
   `docs/decisions/`, not only in commit context or conversation.
 

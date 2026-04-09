@@ -50,6 +50,11 @@ def test_export_to_onnx_matches_embedding_output(tmp_path: Path) -> None:
             message="The feature will be removed. Please remove usage of this function",
             category=DeprecationWarning,
         )
+        warnings.filterwarnings(
+            "ignore",
+            message="You are using the legacy TorchScript-based ONNX export.*",
+            category=DeprecationWarning,
+        )
         exported_path = export_to_onnx(model, output_path, sample_input=sample_input)
     results = validate_onnx(exported_path, model, sample_input)
 

@@ -50,6 +50,10 @@ uv sync --extra onnx   # 包含 ONNX 导出与校验依赖
 uv sync --extra examples  # 包含示例依赖
 ```
 
+`uv` 默认会从 PyTorch 的 CPU wheel 索引解析 `torch`，这样本地开发和 CI
+都有一条更稳定、可预测的运行时路径。如果需要 GPU 版本，应显式选择对应环境，
+而不是依赖默认解析结果。
+
 ## 🚀 快速开始
 
 ### 🔍 生成嵌入向量

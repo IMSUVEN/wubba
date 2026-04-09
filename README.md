@@ -53,6 +53,10 @@ uv sync --extra onnx   # with ONNX export and validation deps
 uv sync --extra examples  # with example-only dependencies
 ```
 
+`uv` resolves `torch` from the PyTorch CPU wheel index by default so local
+development and CI stay on a predictable runtime path. If you need a GPU build,
+choose that environment explicitly instead of relying on the default resolver.
+
 ## 🚀 Quick Start
 
 ### 🔍 Generate Embeddings
