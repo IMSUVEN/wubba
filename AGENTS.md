@@ -1,70 +1,82 @@
-# AGENTS.md
+# wubba
 
-## Project
+> This project is past germination but still early enough that architecture,
+> conventions, and research priorities should be kept explicit as they evolve.
+> The harness should grow from actual model work, not from generic ML boilerplate.
 
-Self-supervised HTML representation learning with PyTorch Lightning.
+## State
 
-- **Python**: >=3.10
-- **Package Manager**: uv
-- **Layout**: `src/wubba/`
+**Phase: Early Growth.**
 
-## Commands
+`wubba` is a self-supervised HTML representation learning library built around a
+Transformer encoder, behavioral augmentation, contrastive-style losses, and an
+inference layer for embeddings, similarity, quantization, and ONNX export.
+
+What already exists:
+
+- A packaged `src/wubba/` library with public training and inference APIs
+- A central `Config` dataclass for model, data, and training hyperparameters
+- Example scripts covering quickstart, similarity search, classification,
+  embedding analysis, custom training, deployment, and batch processing
+- Basic quality tooling via `ruff` and `pyright`
+- A growing `pytest` suite covering config, data processing, inference,
+  utilities, metrics, lightweight training entrypoint behavior, and example
+  surface contracts
+
+What is still taking shape:
+
+- The long-term architecture map beyond the current single-package layout
+- Which modeling and augmentation choices are core identity versus experiments
+- The project's durable decision record and maintenance conventions
+- How far the test suite should expand into model- and trainer-level execution
+  coverage
+
+## Map
+
+| Path | Purpose |
+|---|---|
+| `README.md` | Product framing, installation, examples, public-facing overview |
+| `docs/ARCHITECTURE.md` | Architecture mirror: what exists now and why |
+| `docs/decisions/` | Significant technical and project decisions |
+| `src/wubba/` | Library source code |
+| `examples/` | Usage and integration examples |
+| `pyproject.toml` | Packaging, dependencies, and quality tool configuration |
+
+## Conventions
+
+- Keep the public API small and explicit. New capabilities should fit the
+  current package shape unless there is a clear architectural reason not to.
+- Keep hyperparameters centralized in `Config` rather than scattering them
+  across modules.
+- Treat examples as part of the product surface. If the workflow changes,
+  examples should stay honest.
+- Keep examples aligned with the public API and `Config`; lightweight tests may
+  guard that surface even when examples are not executed end-to-end.
+- Prefer repository memory over chat memory. Stable decisions belong in
+  `docs/decisions/`, not only in commit context or conversation.
+
+## Cultivation
+
+This project's harness should continue to grow from practice:
+
+- **Decisions**: When a technical choice would be costly to reverse or its
+  reasoning is non-obvious, record it in `docs/decisions/`.
+- **Architecture**: When responsibilities move between modules or the package
+  layout changes meaningfully, update `docs/ARCHITECTURE.md`.
+- **Conventions**: When a repeated pattern proves itself, promote it into this
+  file rather than re-explaining it ad hoc.
+- **State**: Keep this file honest about what is stable, what is exploratory,
+  and what still needs to be decided.
+
+## Quality Loop
+
+Run these before shipping meaningful changes:
 
 ```bash
-# Setup
-uv sync                         # Install dependencies
-uv sync --group dev             # With dev tools
-
-# Code quality (run before committing)
-uv run ruff format src examples # Format
-uv run ruff check src examples  # Lint (must pass)
-uv run pyright                  # Type check (0 errors)
-
-# Quick test
+uv sync --group dev
+uv run ruff format src examples tests
+uv run ruff check src examples tests
+uv run pytest tests
+uv run pyright
 uv run python -c "import wubba; print(wubba.__version__)"
 ```
-
-## Code Style
-
-- Line length: 100
-- Quotes: double
-- Type hints: `T | None` not `Optional[T]`
-- Imports: sorted by ruff
-- Docstrings: Google style
-
-## Architecture
-
-```
-src/wubba/
-├── config.py      # ALL hyperparameters here
-├── model.py       # Encoder, loss functions, multi-task heads
-├── data.py        # Data processing, augmentation
-├── train.py       # Training pipeline, callbacks
-├── inference.py   # Inference, quantization, ONNX
-├── metrics.py     # Embedding quality, collapse detection
-├── const.py       # Vocabulary, semantic groups
-└── utils.py       # DOM utilities
-```
-
-## Key Patterns
-
-- All hyperparameters → `Config` dataclass
-- Training logic → Lightning callbacks
-- New loss → add to `model.py`, register in `_setup_loss_function`
-- New augmentation → add to `utils.py`, register in `const.py` tiers
-
-## PR Checklist
-
-```bash
-uv run ruff format src examples  # 1. Format
-uv run ruff check src examples   # 2. Lint (must pass)
-uv run pyright                   # 3. Type check
-```
-
-Title format: `[component] description` (e.g., `[model] add GQA support`)
-
-## Tips
-
-- Use `train_quick()` for fast iteration
-- Check `AGENTS.md` patterns before adding new components
-- Update `__all__` in `__init__.py` when adding public API

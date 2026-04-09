@@ -5,6 +5,8 @@ Use case: Researchers customizing training for specific experiments,
 ablation studies, or hyperparameter tuning.
 """
 
+from dataclasses import asdict
+
 import lightning as L
 from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import TensorBoardLogger
@@ -29,7 +31,7 @@ def train_with_custom_callbacks(
     data_module = WubbaDataModule(config)
 
     # Model
-    model = WubbaLightningModule(**config.__dict__)
+    model = WubbaLightningModule(**asdict(config))
 
     # Callbacks
     callbacks = [
@@ -61,15 +63,15 @@ def train_with_custom_callbacks(
         LearningRateMonitor(logging_interval="step"),
         # Early stopping on validation loss
         EarlyStopping(
-            monitor="val_loss",
+            monitor="val/loss",
             patience=10,
             mode="min",
         ),
         # Checkpointing
         ModelCheckpoint(
             dirpath=str(config.model_dir),
-            filename="best-{epoch}-{val_loss:.4f}",
-            monitor="val_loss",
+            filename="best-{epoch}-{val/loss:.4f}",
+            monitor="val/loss",
             mode="min",
             save_top_k=3,
         ),
@@ -77,7 +79,7 @@ def train_with_custom_callbacks(
 
     # Logger
     logger = TensorBoardLogger(
-        save_dir=str(config.log_dir),
+        save_dir=str(config.model_dir / "logs"),
         name=experiment_name,
     )
 
@@ -86,10 +88,10 @@ def train_with_custom_callbacks(
         max_epochs=config.num_epochs,
         accelerator="auto",
         devices=1,
-        precision=config.mixed_precision,
-        accumulate_grad_batches=config.gradient_accumulation_steps,
-        gradient_clip_val=config.max_grad_norm,
-        callbacks=callbacks,
+            precision=config.mixed_precision,
+            accumulate_grad_batches=config.gradient_accumulation_steps,
+            gradient_clip_val=config.max_grad_norm,
+            callbacks=callbacks,
         logger=logger,
         enable_progress_bar=True,
     )
@@ -117,7 +119,7 @@ def ablation_study(
 
         # Quick training (uses config.data_dir)
         data_module = WubbaDataModule(config)
-        model = WubbaLightningModule(**config.__dict__)
+        model = WubbaLightningModule(**asdict(config))
 
         trainer = L.Trainer(
             max_epochs=10,  # Short for ablation
@@ -133,7 +135,7 @@ def ablation_study(
 
         # Collect metrics
         results[name] = {
-            "final_loss": trainer.callback_metrics.get("train_loss", float("nan")),
+            "final_loss": trainer.callback_metrics.get("train/loss", float("nan")),
             "config": overrides,
         }
 

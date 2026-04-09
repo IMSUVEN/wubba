@@ -73,7 +73,7 @@ class BatchProcessor:
         batch_size: int = 512,
         num_workers: int = 4,
     ):
-        self.model = WubbaInference(model_path, Config())
+        self.model = WubbaInference(model_path, Config(num_workers=num_workers))
         self.dim = dim
         self.batch_size = batch_size
         self.num_workers = num_workers

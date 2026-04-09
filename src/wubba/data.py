@@ -484,6 +484,7 @@ class WubbaDataModule(L.LightningDataModule):
             )
 
     def train_dataloader(self) -> DataLoader:
+        assert self.train_dataset is not None, "Call setup('fit') before requesting train_dataloader()"
         return DataLoader(
             self.train_dataset,
             batch_size=self.config.batch_size,
@@ -491,11 +492,12 @@ class WubbaDataModule(L.LightningDataModule):
             num_workers=self.config.num_workers,
             pin_memory=self.config.pin_memory,
             persistent_workers=self.config.num_workers > 0,
-            prefetch_factor=self.config.prefetch_factor,
+            prefetch_factor=self.config.prefetch_factor if self.config.num_workers > 0 else None,
             drop_last=True,
         )
 
     def val_dataloader(self) -> DataLoader:
+        assert self.val_dataset is not None, "Call setup('fit') before requesting val_dataloader()"
         return DataLoader(
             self.val_dataset,
             batch_size=self.config.batch_size,
@@ -503,5 +505,6 @@ class WubbaDataModule(L.LightningDataModule):
             num_workers=self.config.num_workers,
             pin_memory=self.config.pin_memory,
             persistent_workers=self.config.num_workers > 0,
+            prefetch_factor=self.config.prefetch_factor if self.config.num_workers > 0 else None,
             drop_last=False,
         )

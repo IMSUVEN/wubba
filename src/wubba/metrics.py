@@ -64,12 +64,13 @@ class EmbeddingMetrics:
         sim_matrix = z @ z.T
         mask = torch.triu(torch.ones_like(sim_matrix), diagonal=1).bool()
         similarities = sim_matrix[mask]
+        sim_std = similarities.std(unbiased=False).item() if similarities.numel() > 1 else 0.0
 
         return {
             "sim_min": similarities.min().item(),
             "sim_mean": similarities.mean().item(),
             "sim_max": similarities.max().item(),
-            "sim_std": similarities.std().item(),
+            "sim_std": sim_std,
         }
 
     @staticmethod

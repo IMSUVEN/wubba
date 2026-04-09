@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 import lightning as L
 import torch
 import torch.nn as nn
@@ -51,8 +53,9 @@ class RotaryPositionalEmbedding(nn.Module):
         self._build_cache(max_seq_len)
 
     def _build_cache(self, seq_len: int) -> None:
-        t = torch.arange(seq_len, device=self.inv_freq.device, dtype=self.inv_freq.dtype)
-        freqs = torch.outer(t, self.inv_freq)
+        inv_freq = cast(torch.Tensor, self.inv_freq)
+        t = torch.arange(seq_len, device=inv_freq.device, dtype=inv_freq.dtype)
+        freqs = torch.outer(t, inv_freq)
         emb = torch.cat([freqs, freqs], dim=-1)
 
         self.register_buffer("cos_cached", emb.cos(), persistent=False)
@@ -64,15 +67,19 @@ class RotaryPositionalEmbedding(nn.Module):
         device: torch.device,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Returns (cos, sin) tensors for the given sequence length."""
-        if seq_len <= self.cos_cached.size(0):
+        cos_cached = cast(torch.Tensor, self.cos_cached)
+        sin_cached = cast(torch.Tensor, self.sin_cached)
+        inv_freq = cast(torch.Tensor, self.inv_freq)
+
+        if seq_len <= cos_cached.size(0):
             return (
-                self.cos_cached[:seq_len].to(device),
-                self.sin_cached[:seq_len].to(device),
+                cos_cached[:seq_len].to(device),
+                sin_cached[:seq_len].to(device),
             )
 
         # Compute on-the-fly for longer sequences
-        t = torch.arange(seq_len, device=device, dtype=self.inv_freq.dtype)
-        freqs = torch.outer(t, self.inv_freq.to(device))
+        t = torch.arange(seq_len, device=device, dtype=inv_freq.dtype)
+        freqs = torch.outer(t, inv_freq.to(device))
         emb = torch.cat([freqs, freqs], dim=-1)
         return emb.cos(), emb.sin()
 
@@ -129,22 +136,25 @@ class HierarchicalRoPE(nn.Module):
 
     def _build_cache(self, max_seq_len: int, max_depth: int, max_subtree_depth: int) -> None:
         if self.position_dim > 0:
-            t_pos = torch.arange(max_seq_len, dtype=self.inv_freq_pos.dtype)
-            freqs_pos = torch.outer(t_pos, self.inv_freq_pos)
+            inv_freq_pos = cast(torch.Tensor, self.inv_freq_pos)
+            t_pos = torch.arange(max_seq_len, dtype=inv_freq_pos.dtype)
+            freqs_pos = torch.outer(t_pos, inv_freq_pos)
             emb_pos = torch.cat([freqs_pos, freqs_pos], dim=-1)
             self.register_buffer("cos_pos", emb_pos.cos(), persistent=False)
             self.register_buffer("sin_pos", emb_pos.sin(), persistent=False)
 
         if self.depth_dim > 0:
-            t_depth = torch.arange(max_depth, dtype=self.inv_freq_depth.dtype)
-            freqs_depth = torch.outer(t_depth, self.inv_freq_depth)
+            inv_freq_depth = cast(torch.Tensor, self.inv_freq_depth)
+            t_depth = torch.arange(max_depth, dtype=inv_freq_depth.dtype)
+            freqs_depth = torch.outer(t_depth, inv_freq_depth)
             emb_depth = torch.cat([freqs_depth, freqs_depth], dim=-1)
             self.register_buffer("cos_depth", emb_depth.cos(), persistent=False)
             self.register_buffer("sin_depth", emb_depth.sin(), persistent=False)
 
         if self.subtree_dim > 0:
-            t_subtree = torch.arange(max_subtree_depth, dtype=self.inv_freq_subtree.dtype)
-            freqs_subtree = torch.outer(t_subtree, self.inv_freq_subtree)
+            inv_freq_subtree = cast(torch.Tensor, self.inv_freq_subtree)
+            t_subtree = torch.arange(max_subtree_depth, dtype=inv_freq_subtree.dtype)
+            freqs_subtree = torch.outer(t_subtree, inv_freq_subtree)
             emb_subtree = torch.cat([freqs_subtree, freqs_subtree], dim=-1)
             self.register_buffer("cos_subtree", emb_subtree.cos(), persistent=False)
             self.register_buffer("sin_subtree", emb_subtree.sin(), persistent=False)
@@ -160,19 +170,25 @@ class HierarchicalRoPE(nn.Module):
         sin_parts = []
 
         if self.position_dim > 0:
-            pos_idx = positions.clamp(0, self.cos_pos.size(0) - 1)
-            cos_parts.append(self.cos_pos[pos_idx])
-            sin_parts.append(self.sin_pos[pos_idx])
+            cos_pos = cast(torch.Tensor, self.cos_pos)
+            sin_pos = cast(torch.Tensor, self.sin_pos)
+            pos_idx = positions.clamp(0, cos_pos.size(0) - 1)
+            cos_parts.append(cos_pos[pos_idx])
+            sin_parts.append(sin_pos[pos_idx])
 
         if self.depth_dim > 0:
-            depth_idx = depths.clamp(0, self.cos_depth.size(0) - 1)
-            cos_parts.append(self.cos_depth[depth_idx])
-            sin_parts.append(self.sin_depth[depth_idx])
+            cos_depth = cast(torch.Tensor, self.cos_depth)
+            sin_depth = cast(torch.Tensor, self.sin_depth)
+            depth_idx = depths.clamp(0, cos_depth.size(0) - 1)
+            cos_parts.append(cos_depth[depth_idx])
+            sin_parts.append(sin_depth[depth_idx])
 
         if self.subtree_dim > 0:
-            subtree_idx = subtree_depths.clamp(0, self.cos_subtree.size(0) - 1)
-            cos_parts.append(self.cos_subtree[subtree_idx])
-            sin_parts.append(self.sin_subtree[subtree_idx])
+            cos_subtree = cast(torch.Tensor, self.cos_subtree)
+            sin_subtree = cast(torch.Tensor, self.sin_subtree)
+            subtree_idx = subtree_depths.clamp(0, cos_subtree.size(0) - 1)
+            cos_parts.append(cos_subtree[subtree_idx])
+            sin_parts.append(sin_subtree[subtree_idx])
 
         cos = torch.cat(cos_parts, dim=-1)
         sin = torch.cat(sin_parts, dim=-1)
@@ -1109,9 +1125,8 @@ class MaskedNodePrediction(nn.Module):
         x_masked[mask_token, 0] = self.mask_token_id
 
         random_token = mask & ~mask_token & (torch.rand_like(rand) < 0.5)
-        x_masked[random_token, 0] = torch.randint(
-            2, self.vocab_size, (random_token.sum(),), device=device
-        )
+        n_random = int(random_token.sum().item())
+        x_masked[random_token, 0] = torch.randint(2, self.vocab_size, (n_random,), device=device)
 
         return x_masked, labels.long()
 
@@ -1508,8 +1523,9 @@ class WubbaLightningModule(L.LightningModule):
                         self.active_matryoshka_dims.append(dim)
                         self.active_matryoshka_dims.sort()
 
-            if hasattr(self.criterion, "active_dims"):
-                self.criterion.active_dims = self.active_matryoshka_dims
+            criterion: Any = self.criterion
+            if hasattr(criterion, "active_dims"):
+                criterion.active_dims = self.active_matryoshka_dims
 
     def validation_step(self, batch, batch_idx):
         x1, x2 = batch

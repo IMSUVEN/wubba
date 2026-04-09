@@ -1,7 +1,7 @@
 """Training pipeline with curriculum learning, progressive Matryoshka, and EMA."""
 
 from dataclasses import asdict
-from typing import Any
+from typing import Any, cast
 
 import lightning as L
 import torch
@@ -89,7 +89,7 @@ class CurriculumLearningCallback(Callback):
             processor = trainer.datamodule.data_processor
             processor.aug_strong_prob = config["aug_strong_prob"]
 
-        criterion = pl_module.criterion
+        criterion: Any = pl_module.criterion
 
         if hasattr(criterion, "variance_weight"):
             criterion.variance_weight = config["vicreg_variance_weight"]
@@ -149,8 +149,9 @@ class ProgressiveMatryoshkaCallback(Callback):
                 new_dim = max(active_dims)
                 pl_module.log("matryoshka/unlocked_dim", float(new_dim), on_epoch=True)
 
-        if hasattr(pl_module.criterion, "active_dims"):
-            pl_module.criterion.active_dims = sorted(active_dims)
+        criterion: Any = pl_module.criterion
+        if hasattr(criterion, "active_dims"):
+            criterion.active_dims = sorted(active_dims)
 
         pl_module.log("matryoshka/n_active_dims", float(len(active_dims)), on_epoch=True)
 
@@ -226,7 +227,7 @@ class CollapseMonitorCallback(Callback):
                 pl_module.log("collapse/warning_count", float(self._collapse_count))
 
                 if self.auto_adjust and self._collapse_count >= 3:
-                    criterion = pl_module.criterion
+                    criterion: Any = pl_module.criterion
                     if hasattr(criterion, "vicreg"):
                         old_weight = float(criterion.vicreg.variance_weight)
                         criterion.vicreg.variance_weight = min(50.0, old_weight * 1.2)
@@ -256,7 +257,7 @@ def train(
     model = WubbaLightningModule(**asdict(config))
 
     if use_compile:
-        model = torch.compile(model)  # type: ignore[assignment]
+        model = cast(WubbaLightningModule, torch.compile(model))
 
     callbacks: list[Callback] = [
         ModelCheckpoint(
@@ -316,7 +317,7 @@ def train(
         max_epochs=config.num_epochs,
         accelerator="auto",
         devices="auto",
-        precision=config.mixed_precision,
+        precision=cast(Any, config.mixed_precision),
         accumulate_grad_batches=config.gradient_accumulation_steps,
         gradient_clip_val=config.max_grad_norm or None,
         callbacks=callbacks,

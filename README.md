@@ -30,6 +30,11 @@
 
 Wubba learns **layout-invariant embeddings** from raw HTML using contrastive learning. Convert any HTML document into a fixed-size vector for similarity search, clustering, or classification.
 
+The stable center of the project is the raw-HTML-to-embedding pipeline plus the
+inference surface around those embeddings. Several advanced training recipes
+and augmentation variants are available, but they should still be read as
+research-oriented options rather than permanent identity claims.
+
 ```python
 from wubba import WubbaInference
 
@@ -44,6 +49,7 @@ similarity = model.compute_similarity(html1, html2)
 uv sync                # or: pip install .
 uv sync --group dev    # with dev tools
 uv sync --extra onnx   # with ONNX export
+uv sync --extra examples  # with example-only dependencies
 ```
 
 ## 🚀 Quick Start
@@ -85,17 +91,17 @@ model.quantize()                    # INT8 for faster CPU inference
 model.export_onnx("model.onnx")     # Cross-platform deployment
 ```
 
+`quantize()` works with the base install. `export_onnx()` and ONNX validation
+require the `onnx` optional dependency group.
+
 ## ✨ Features
 
 | Category | Features |
 |----------|----------|
-| ⚡ **Performance** | Flash Attention (SDPA), `torch.compile()`, INT8 quantization, ONNX export |
-| 🧠 **Architecture** | Hierarchical RoPE, Multi-Head Attention (SDPA), RMSNorm + SwiGLU |
-| 🎯 **Embeddings** | Matryoshka (32/64/128/256 dims), layout-invariant representations |
-| 📉 **Loss Functions** | VICReg, InfoNCE, Spectral Contrastive, Hard Negative Mining, Alignment-Uniformity |
-| 🎓 **Training** | Curriculum Learning, Self-Paced Learning, EMA, Collapse Detection |
-| 🔧 **Multi-task** | Masked Node Prediction, Structure Prediction (depth & count) |
-| 🌳 **Augmentation** | Contextual (node-type specific), Tree Mixup, Semantic Replace, Subtree Shuffle |
+| ✅ **Core Surface** | Raw HTML to embeddings, Transformer encoder, behavioral augmentation, contrastive training, similarity search |
+| ✅ **Deployment** | Matryoshka truncation, INT8 quantization, ONNX export |
+| 🧪 **Advanced Training Options** | VICReg, InfoNCE, hybrid losses, EMA, collapse detection, curriculum learning |
+| 🧪 **Experimental Extensions** | Spectral loss, hard negative mining, multitask heads, contextual augmentation, Tree Mixup |
 
 ## 🏗️ Architecture
 
@@ -121,7 +127,7 @@ Config(
     matryoshka_dims=[32, 64, 128, 256],
     
     # 🎯 Training
-    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid | enhanced_hybrid
+    loss_type="enhanced_hybrid",  # advanced recipe, not the only intended path
     use_ema=True,
     enable_multitask=True,
     
@@ -160,12 +166,19 @@ src/wubba/
 ## 🛠️ Development
 
 ```bash
-uv run ruff format src    # 🎨 Format
-uv run ruff check src     # 🔍 Lint
+uv run ruff format src examples tests    # 🎨 Format
+uv run ruff check src examples tests     # 🔍 Lint
+uv run pytest tests                      # ✅ Regression tests
 uv run pyright            # 📝 Type check
 ```
 
-📖 See [AGENTS.md](AGENTS.md) for detailed development guidelines.
+📖 See [AGENTS.md](AGENTS.md) for the project state, conventions, and growth
+rules.
+
+📚 Persistent project memory lives in:
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/decisions/README.md](docs/decisions/README.md)
 
 ## 📄 License
 

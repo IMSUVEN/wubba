@@ -14,10 +14,10 @@ from wubba.inference import validate_onnx
 def optimize_for_cpu_deployment(
     checkpoint_path: str,
     output_dir: str = "models/optimized/",
-) -> dict:
+) -> dict[str, float]:
     """Optimizes model for CPU deployment with INT8 quantization."""
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    _output_dir = Path(output_dir)
+    _output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load model (quantize() automatically loads if needed)
     inference = WubbaInference(checkpoint_path, Config(), use_compile=False)
@@ -63,7 +63,7 @@ def validate_onnx_export(
 
     print("Validating ONNX export...")
 
-    model = WubbaLightningModule.load_from_checkpoint(checkpoint_path)
+    model = WubbaLightningModule.load_from_checkpoint(checkpoint_path, **Config().__dict__)
     sample_input = torch.randint(0, 100, (4, 256, 10), dtype=torch.long)
 
     results = validate_onnx(onnx_path, model, sample_input)
@@ -84,6 +84,10 @@ class ProductionInference:
         use_quantization: bool = True,
         dim: int = 64,
     ):
+        if dim not in Config().matryoshka_dims:
+            available = ", ".join(map(str, Config().matryoshka_dims))
+            raise ValueError(f"dim must be one of: {available}")
+
         self.inference = WubbaInference(
             model_path,
             Config(),
@@ -134,7 +138,7 @@ if __name__ == "__main__":
     # CPU optimization
     print("=== CPU Optimization (INT8 Quantization) ===")
     try:
-        metrics = optimize_for_cpu_deployment(checkpoint)
+        optimize_for_cpu_deployment(checkpoint)
     except FileNotFoundError:
         print("  Checkpoint not found, skipping...")
 

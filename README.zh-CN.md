@@ -30,6 +30,8 @@
 
 Wubba 使用对比学习从原始 HTML 中学习**布局不变的嵌入表示**。可将任意 HTML 文档转换为固定大小的向量，用于相似度搜索、聚类或分类。
 
+项目当前稳定的中心是从原始 HTML 到嵌入向量的主路径，以及围绕这些嵌入构建的推理接口。若干高级训练配方和增强变体已经可用，但目前更适合被理解为研究型选项，而不是已经完全定型的身份承诺。
+
 ```python
 from wubba import WubbaInference
 
@@ -44,6 +46,7 @@ similarity = model.compute_similarity(html1, html2)
 uv sync                # 或: pip install .
 uv sync --group dev    # 包含开发工具
 uv sync --extra onnx   # 包含 ONNX 导出支持
+uv sync --extra examples  # 包含示例依赖
 ```
 
 ## 🚀 快速开始
@@ -85,17 +88,16 @@ model.quantize()                    # INT8 量化加速 CPU 推理
 model.export_onnx("model.onnx")     # 跨平台部署
 ```
 
+`quantize()` 使用基础安装即可。`export_onnx()` 和 ONNX 校验需要安装 `onnx` 可选依赖组。
+
 ## ✨ 特性
 
 | 类别 | 特性 |
 |------|------|
-| ⚡ **性能** | Flash Attention (SDPA)、`torch.compile()`、INT8 量化、ONNX 导出 |
-| 🧠 **架构** | 层次化 RoPE、多头注意力 (SDPA)、RMSNorm + SwiGLU |
-| 🎯 **嵌入** | Matryoshka（32/64/128/256 维）、布局不变表示 |
-| 📉 **损失函数** | VICReg、InfoNCE、谱对比损失、困难负样本挖掘、对齐-均匀性 |
-| 🎓 **训练** | 课程学习、自步学习、EMA、表示坍塌检测 |
-| 🔧 **多任务** | 掩码节点预测、结构预测（深度与计数） |
-| 🌳 **数据增强** | 上下文感知增强、Tree Mixup、语义替换、子树打乱 |
+| ✅ **核心表面** | 原始 HTML 到嵌入向量、Transformer 编码器、行为增强、对比式训练、相似度搜索 |
+| ✅ **部署能力** | Matryoshka 截断、INT8 量化、ONNX 导出 |
+| 🧪 **高级训练选项** | VICReg、InfoNCE、混合损失、EMA、坍塌检测、课程学习 |
+| 🧪 **实验性扩展** | 谱损失、困难负样本、多任务头、上下文增强、Tree Mixup |
 
 ## 🏗️ 架构
 
@@ -121,7 +123,7 @@ Config(
     matryoshka_dims=[32, 64, 128, 256],
     
     # 🎯 训练
-    loss_type="enhanced_hybrid",  # vicreg | infonce | hybrid | matryoshka_hybrid | enhanced_hybrid
+    loss_type="enhanced_hybrid",  # 高级配方之一，不是唯一推荐路径
     use_ema=True,
     enable_multitask=True,
     
@@ -160,12 +162,18 @@ src/wubba/
 ## 🛠️ 开发
 
 ```bash
-uv run ruff format src    # 🎨 格式化
-uv run ruff check src     # 🔍 代码检查
-uv run pyright            # 📝 类型检查
+uv run ruff format src examples tests    # 🎨 格式化
+uv run ruff check src examples tests     # 🔍 代码检查
+uv run pytest tests                      # ✅ 回归测试
+uv run pyright                           # 📝 类型检查
 ```
 
 📖 详细开发指南请参阅 [AGENTS.md](AGENTS.md)。
+
+📚 持久化项目记忆位于：
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/decisions/README.md](docs/decisions/README.md)
 
 ## 📄 许可证
 

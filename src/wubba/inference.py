@@ -1,8 +1,9 @@
 """Inference wrapper with quantization and ONNX export."""
 
+import importlib
 from dataclasses import asdict
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal, cast
 
 import torch
 import torch.nn.functional as F
@@ -109,7 +110,7 @@ def export_to_onnx(
 
     torch.onnx.export(
         model.model,
-        sample_input,
+        (sample_input,),
         str(output_path),
         opset_version=opset_version,
         input_names=["input"],
@@ -132,7 +133,7 @@ def validate_onnx(
     import numpy as np
 
     try:
-        import onnxruntime as ort
+        ort = importlib.import_module("onnxruntime")
     except ImportError as e:
         raise ImportError("onnxruntime is required for ONNX validation") from e
 
@@ -194,12 +195,12 @@ class WubbaInference:
         self.model.eval()
 
         if self.use_compile:
-            self.model = torch.compile(self.model)  # type: ignore[assignment]
+            self.model = cast(WubbaLightningModule, torch.compile(self.model))
 
         self.trainer = Trainer(
             accelerator="auto",
             devices=1,  # Inference on a single device
-            precision=self.config.mixed_precision,
+            precision=cast(Any, self.config.mixed_precision),
             logger=False,
             enable_checkpointing=False,
         )
