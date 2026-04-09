@@ -56,6 +56,9 @@ uv sync --extra examples  # with example-only dependencies
 `uv` resolves `torch` from the PyTorch CPU wheel index by default so local
 development and CI stay on a predictable runtime path. If you need a GPU build,
 choose that environment explicitly instead of relying on the default resolver.
+The simplest way to do that is to create a dedicated environment and install
+PyTorch from the appropriate official index selected via pytorch.org, then
+install `wubba` on top of that environment.
 
 ## 🚀 Quick Start
 
