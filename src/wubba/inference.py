@@ -95,6 +95,14 @@ def export_to_onnx(
     model = model.cpu()
     model.eval()
 
+    class _EmbeddingExportWrapper(torch.nn.Module):
+        def __init__(self, base_model: WubbaLightningModule):
+            super().__init__()
+            self.base_model = base_model
+
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
+            return self.base_model.model(x, return_projection=False)
+
     if sample_input is None:
         batch_size = 2
         seq_len = 256
@@ -109,7 +117,7 @@ def export_to_onnx(
         }
 
     torch.onnx.export(
-        model.model,
+        _EmbeddingExportWrapper(model),
         (sample_input,),
         str(output_path),
         opset_version=opset_version,

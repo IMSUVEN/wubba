@@ -23,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: uv sync --group dev --extra examples
+        run: uv sync --group dev --extra examples --extra onnx
 
       - name: Ruff
         run: uv run ruff check src examples tests
