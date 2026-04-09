@@ -56,6 +56,8 @@ What is still taking shape:
   guard that surface even when examples are not executed end-to-end.
 - Treat dependency update PRs as normal maintenance: let CI run first, then
   review according to how much of the public surface they can affect.
+- Treat core runtime upgrades, especially `torch`, as environment decisions as
+  well as version bumps; importability and resolved wheel families matter.
 - Prefer repository memory over chat memory. Stable decisions belong in
   `docs/decisions/`, not only in commit context or conversation.
 

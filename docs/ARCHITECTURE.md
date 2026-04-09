@@ -70,3 +70,5 @@ The main flow is:
   after more evidence
 - How far the test suite should extend from utility-level regression tests into
   data, model, and training-path coverage
+- Whether development and CI should stay on a CPU-first PyTorch packaging path
+  or explicitly adopt a newer CUDA-family runtime expectation
