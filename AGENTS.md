@@ -53,6 +53,8 @@ What is still taking shape:
   examples should stay honest.
 - Keep examples aligned with the public API and `Config`; lightweight tests may
   guard that surface even when examples are not executed end-to-end.
+- Treat dependency update PRs as normal maintenance: let CI run first, then
+  review according to how much of the public surface they can affect.
 - Prefer repository memory over chat memory. Stable decisions belong in
   `docs/decisions/`, not only in commit context or conversation.
 
