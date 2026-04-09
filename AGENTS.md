@@ -38,6 +38,7 @@ What is still taking shape:
 | `README.md` | Product framing, installation, examples, public-facing overview |
 | `docs/ARCHITECTURE.md` | Architecture mirror: what exists now and why |
 | `docs/decisions/` | Significant technical and project decisions |
+| `.github/workflows/` | Remote CI and repository feedback loop |
 | `src/wubba/` | Library source code |
 | `examples/` | Usage and integration examples |
 | `pyproject.toml` | Packaging, dependencies, and quality tool configuration |

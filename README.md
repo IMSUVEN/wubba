@@ -21,6 +21,7 @@
   <img src="https://img.shields.io/badge/python-3.10+-3776ab?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/PyTorch-2.7+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/Lightning-2.5+-792ee5?logo=lightning&logoColor=white" alt="Lightning">
+  <a href="https://github.com/IMSUVEN/wubba/actions/workflows/ci.yml"><img src="https://github.com/IMSUVEN/wubba/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/code%20style-ruff-000000?logo=ruff&logoColor=white" alt="Ruff">
   <img src="https://img.shields.io/badge/types-pyright-blue?logo=python&logoColor=white" alt="Pyright">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
